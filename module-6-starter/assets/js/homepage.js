@@ -31,7 +31,7 @@ var getUserRepos = function(octocat) {
       // request was succesful
       if (response.ok) {
         response.json().then(function(data) {
-          displayRepos(data, user);
+          displayRepos(data, octocat);
         });
       } else {
         alert("Error: " + response.statusText);
