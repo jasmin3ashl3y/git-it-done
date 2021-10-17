@@ -2,13 +2,28 @@ var repoNameEl = document.querySelector("#repo-name");
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
 
+var getRepoName = function() {
+  // grab repo name from url query string
+  var queryString = document.location.search;
+  var repoName = queryString.split("=")[1];
+
+  if(repoName) {
+    // display repo name on the page
+    repoNameEl.textContent = repoName;
+
+    getRepoIssues(repoName);
+  } else {
+    // if no repo was given, redirect to the homepage
+    document.location.replace("./index.html");
+  }
+}
+
 var getRepoIssues = function(repo) {
   // format the Github api url
   var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
 
     // make a request to url
-    fetch(apiUrl)
-      .then(function(response) {
+    fetch(apiUrl).then(function(response) {
         // request was successful
         if (response.ok) {
           response.json().then(function(data) {
@@ -18,14 +33,12 @@ var getRepoIssues = function(repo) {
           if (response.headers.get("Link")) {
             displayWarning(repo);
           }
-          });
-        }
-          else {
-            console.log(response);
-            alert("There was a problem with your request!");
-          }
-        
-  });
+        });
+      } else {
+        // if not successful, redirect user back to the homepage
+        document.location.replace("./index.html")
+      }
+    });
 }
 
 var displayIssues = function(issues) {
@@ -34,7 +47,7 @@ var displayIssues = function(issues) {
     return;
   }
 
-
+  // loop over given issues
   for (var i = 0; i < issues.length; i++) {
     // create a link element to take users to the issue on github
     var issueEl = document.createElement("a");
@@ -46,7 +59,6 @@ var displayIssues = function(issues) {
     var titleEl = document.createElement("span");
     titleEl.textContent = issues[i].title;
 
-
     // append to container
     issueEl.appendChild(titleEl);
 
@@ -56,8 +68,7 @@ var displayIssues = function(issues) {
     // check if issue is an actual issue or a pull request
     if (issues[i].pull_request) {
       typeEl.textContent = "(Pull Request)";
-    } 
-    else {
+    } else {
       typeEl.textContent = "(Issue)";
     }
 
@@ -81,7 +92,7 @@ var displayWarning = function(repo) {
 
   // append to warning container
   limitWarningEl.appendChild(linkEl);
-
 };
 
-getRepoIssues("facebook/react");
+//getRepoIssues("facebook/react");
+getRepoName()
